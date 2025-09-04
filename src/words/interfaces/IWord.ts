@@ -7,5 +7,6 @@ export interface IWord {
   definitions: Array<IDefinition>
   phonetics: IPhonetics
   sources: Array<ISource>
-  frequency: Number
+  frequency: Number,
+  requested: Number
 }

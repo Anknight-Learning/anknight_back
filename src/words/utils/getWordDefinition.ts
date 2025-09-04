@@ -1,3 +1,6 @@
+import { IWord } from "../interfaces/IWord"
+import words from "../routes"
+
 interface Pronunciation {
   seq: Number,
   raw: String,
@@ -70,7 +73,7 @@ export const getWordDefinition = async (word: String) => {
   const frequency = (await resFrequency.json()).totalCount
   const sources = definitions && pronunciation ? getWordSources({ definitions, pronunciation }) : []
 
-  const data = { word, definitions, pronunciation, frequency, sources }
+  const data = buildWord({ word, definitions, pronunciation, frequency, sources })
 
   return data
 }
@@ -86,7 +89,7 @@ const getPronunciation = (data: [Pronunciation]): NewPronunciation => {
   }
 }
 
-const getDefinitions = (data: Array<Definition>): Array<NewDefinition> | null => {
+const getDefinitions = (data: Array<Definition>): Array<NewDefinition> => {
   return data.map((item: Definition): NewDefinition | null => {
     if (item.exampleUses.length > 0 && item.sourceDictionary === "ahd-5") {
       return {
@@ -132,6 +135,21 @@ const getWordSources = ({ definitions, pronunciation }: { definitions: Array<New
   return Array.from(sources.values());
 }
 
-const buildWord = (item: any) => {
-
+const buildWord = (item: { word: String, definitions: Array<NewDefinition>, pronunciation: NewPronunciation, frequency: Number, sources: Array<NewSources> }): IWord => {
+  return {
+    word: item.word,
+    definitions: item.definitions.map((definition: NewDefinition) => ({
+      partOfSpeech: definition.partOfSpeech,
+      definition: definition.definition,
+      example: {
+        text: definition && definition.example && definition.example.text || ""
+      }
+    })),
+    phonetics: {
+      text: item && item.pronunciation && item.pronunciation.phonetics || ""
+    },
+    sources: item.sources,
+    requested: 0,
+    frequency: item.frequency,
+  }
 }

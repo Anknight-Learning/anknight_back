@@ -1,4 +1,4 @@
 export interface IPhonetics {
   text: String;
-  audio: String | undefined;
+  audio?: String | undefined;
 }

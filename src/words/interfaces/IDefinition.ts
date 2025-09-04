@@ -3,6 +3,6 @@ export interface IDefinition {
   definition: String;
   example: {
     text: String;
-    audio: String | undefined;
+    audio?: String | undefined;
   }
 }

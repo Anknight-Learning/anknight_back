@@ -1,5 +1,4 @@
 import { IWord } from "../interfaces/IWord"
-import words from "../routes"
 
 interface Pronunciation {
   seq: Number,

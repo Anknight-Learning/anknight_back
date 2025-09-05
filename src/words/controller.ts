@@ -1,5 +1,7 @@
 import { Context } from "hono"
-import { getWordDefinition } from "./utils/getWordDefinition"
+import { NewWord } from "./classes/NewWord"
+import Word from "./schemas/Word"
+import { ApiWord } from "./classes/ApiWord"
 
 const listWords = async (c: Context) => {
   console.log("hola")
@@ -7,12 +9,26 @@ const listWords = async (c: Context) => {
 
 const searchWord = async (c: Context) => {
 
-  const word = c.req.param("word")
-  const definition = await getWordDefinition(word)
+  const word = c.req.param("word");
 
-  if (definition == null) return c.status(404)
+  try {
+    const dbWord = await Word.findOneAndUpdate({ "word": word }, { "$inc": { requested: 1 } }, { new: true });
 
-  return c.json(definition)
+    if (dbWord) return c.json(new ApiWord(dbWord).getStructuredWord());
+
+    try {
+      const wordnikWord = await new NewWord(word).getWordData();
+      const savedWord = await Word.insertOne(wordnikWord);
+
+      return c.json(new ApiWord(savedWord).getStructuredWord());
+    } catch (e) {
+      console.log(e);
+      return c.status(404);
+    }
+  } catch (e) {
+    console.log(e);
+    return c.status(404)
+  }
 }
 
 export { listWords, searchWord };

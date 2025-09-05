@@ -33,7 +33,9 @@ const Word = new mongoose.Schema({
     required: true
   },
   frequency: { type: Number, required: true, default: 0 },
-  requested: { type: Number, required: true, default: 0 }
+  requested: { type: Number, required: true, default: 0 },
+  d_creation: { type: Date, required: true, default: Date.now() },
+  d_updated: { type: Date, required: true, default: Date.now() }
 });
 
 export default mongoose.model("Word", Word);

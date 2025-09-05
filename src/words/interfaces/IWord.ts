@@ -44,7 +44,7 @@ export namespace IWord {
   /** Database Word Schemas */
   const DBWordDefinition = WordDefinition.extend({ _id: Types.ObjectId });
   const DBWordSource = WordSource.extend({ _id: Types.ObjectId });
-  const DBWord = Word.extend({ _id: Types.ObjectId, definitions: z.array(DBWordDefinition), sources: z.array(DBWordSource) });
+  const DBWord = Word.extend({ _id: Types.ObjectId, definitions: z.array(DBWordDefinition), sources: z.array(DBWordSource), d_creation: z.date(), d_updated: z.date() });
 
   export const Validation = {
     WordText,

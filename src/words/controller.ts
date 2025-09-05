@@ -4,7 +4,29 @@ import Word from "./schemas/Word"
 import { ApiWord } from "./classes/ApiWord"
 
 const listWords = async (c: Context) => {
-  console.log("hola")
+
+  // TODO: Buscar por texto de la palabra
+  // TODO: Ordenar por (ultimas añadidas, popularidad, mas frecuentes)
+  // TODO: Meter paginacion
+
+  const words = await Word.aggregate([
+    {
+      $project: {
+        _id: 0,
+        word: 1,
+        first_definition: { $arrayElemAt: ["$definitions.partOfSpeech", 0] },
+        definition_count: { $size: "$definitions" }
+      }
+    },
+    {
+      $sort: {
+        requested: -1,
+        frequency: -1
+      }
+    }
+  ]);
+
+  return c.json(Array.from(words))
 }
 
 const searchWord = async (c: Context) => {

@@ -7,6 +7,8 @@ export class ApiWord {
   sources: Array<IWord.Types.WordSource>;
   frequency: number;
   requested: number;
+  d_creation: Date;
+  d_updated: Date;
 
   constructor(item: IWord.Types.DB.Word) {
     this.word = item.word;
@@ -15,6 +17,8 @@ export class ApiWord {
     this.sources = this.getStructuredSources(item.sources);
     this.frequency = item.frequency;
     this.requested = item.requested;
+    this.d_creation = item.d_creation;
+    this.d_updated = item.d_updated;
   }
 
   getStructuredWord() {
@@ -24,7 +28,7 @@ export class ApiWord {
       phonetics: this.phonetics,
       frequency: this.frequency,
       requested: this.requested,
-      sources: this.sources
+      sources: this.sources,
     };
   };
 

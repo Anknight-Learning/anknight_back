@@ -6,6 +6,6 @@ const words = new Hono();
 
 words.get("/", async (c) => listWords(c));
 
-words.get("/search/:word", async (c) => searchWord(c));
+words.get("/:word", async (c) => searchWord(c));
 
 export default words;

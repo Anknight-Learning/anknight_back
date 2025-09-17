@@ -3,6 +3,9 @@ import { NewWord } from "./classes/NewWord"
 import Word from "./schemas/Word"
 import { ApiWord } from "./classes/ApiWord"
 import { IFilters } from "./interfaces/IFilters"
+import { Rabbit } from "./classes/Rabbit"
+import { IMessage } from "./interfaces/IMessage"
+import { IWord } from "./interfaces/IWord"
 
 const listWords = async (c: Context) => {
   const page: number = Number(c.req.query("page")) - 1 || 0;
@@ -16,7 +19,7 @@ const listWords = async (c: Context) => {
   orders.forEach((order: string) => {
     const sort = order.split("-");
 
-    if (sort.length != 2) errors.push({ type: "Filters", field: order, message: `Malformed query parameter: ${order}. Must be SORTTYPE-ORDER, like 'mostused-ASC'` });
+    if (sort.length != 2) errors.push({ type: "Filters", field: order, message: `Malformed query parameter: ${order}. Must be like 'mostused-ASC'` });
 
     const validField = IFilters.Validation.SortTypes.safeParse(sort[0]);
     const validType = IFilters.Validation.OrderTypes.safeParse(sort[1]);
@@ -80,8 +83,8 @@ const listWords = async (c: Context) => {
 }
 
 const searchWord = async (c: Context) => {
-
   const word = c.req.param("word");
+  const rabbit = Rabbit.getInstance();
 
   try {
     const dbWord = await Word.findOneAndUpdate({ "word": word }, { "$inc": { requested: 1 } }, { new: true });
@@ -90,7 +93,21 @@ const searchWord = async (c: Context) => {
 
     try {
       const wordnikWord = await new NewWord(word).getWordData();
-      const savedWord = await Word.insertOne(wordnikWord);
+      const savedWord: IWord.Types.DB.Word = await Word.insertOne(wordnikWord);
+
+      if (savedWord && rabbit && rabbit.enabled) {
+
+        const phoneticsID = savedWord.phonetics._id;
+
+        const rabbitMessage: IMessage.Types.Message = {
+          word: word,
+          text: word,
+          field_name: "phonetics",
+          field_id: phoneticsID ? phoneticsID.toString() : ""
+        }
+
+        rabbit.sendMessage(rabbitMessage);
+      }
 
       return c.json(new ApiWord(savedWord).getStructuredWord());
     } catch (e) {

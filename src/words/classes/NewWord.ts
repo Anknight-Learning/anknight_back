@@ -1,42 +1,31 @@
 import { IWord } from "../interfaces/IWord"
 import { IWordnik } from "../interfaces/IWordnik"
+import { Logger } from "./Logger";
 
 export class NewWord {
-  word: string
-  searchUrl: URL
-  pronunciationUrl: URL
-  frequencyUrl: URL
-
-  sourcesMap: Map<String, IWord.Types.WordSource>
+  private logger = Logger.getInstance()?.logger;
+  private word: string;
+  private searchUrl: URL;
+  private pronunciationUrl: URL;
+  private frequencyUrl: URL;
+  private sourcesMap: Map<String, IWord.Types.WordSource>;
 
   constructor(word: string) {
-    this.word = word
-    this.searchUrl = new URL(`${process.env.WORD_SEARCH_URL}/word.json/${this.word}/definitions?api_key=${process.env.WORDNIK_TOKEN}`)
-    this.pronunciationUrl = new URL(`${process.env.WORD_SEARCH_URL}/word.json/${this.word}/pronunciations?api_key=${process.env.WORDNIK_TOKEN}`)
-    this.frequencyUrl = new URL(`${process.env.WORD_SEARCH_URL}/word.json/${this.word}/frequency?api_key=${process.env.WORDNIK_TOKEN}`)
-
-    this.sourcesMap = new Map()
+    this.word = word;
+    this.searchUrl = new URL(`${process.env.WORD_SEARCH_URL}/word.json/${this.word}/definitions?api_key=${process.env.WORDNIK_TOKEN}`);
+    this.pronunciationUrl = new URL(`${process.env.WORD_SEARCH_URL}/word.json/${this.word}/pronunciations?api_key=${process.env.WORDNIK_TOKEN}`);
+    this.frequencyUrl = new URL(`${process.env.WORD_SEARCH_URL}/word.json/${this.word}/frequency?api_key=${process.env.WORDNIK_TOKEN}`);
+    this.sourcesMap = new Map();
   }
 
-  async getWordData(): Promise<IWord.Types.Word> {
-    return {
-      word: this.word,
-      definitions: await this.getDefinitions(),
-      phonetics: await this.getPhonetics(),
-      sources: Array.from(this.sourcesMap.values()),
-      frequency: await this.getFrequency(),
-      requested: 0
-    }
-  }
+  private getPhonetics = async (): Promise<IWord.Types.WordPhonetics> => {
+    const res = await fetch(this.pronunciationUrl);
 
-  async getPhonetics(): Promise<IWord.Types.WordPhonetics> {
-    const res = await fetch(this.pronunciationUrl)
+    if (res.status !== 200) throw new Error("The word doesn't be found in the dictionary");
 
-    if (res.status !== 200) throw new Error("The word doesn't be found in the dictionary")
+    const data = await res.json();
 
-    const data = await res.json()
-
-    const pronunciation = data.filter((item: IWordnik.Types.Pronunciation) => item.rawType === "ahd-5")[0]
+    const pronunciation = data.filter((item: IWordnik.Types.Pronunciation) => item.rawType === "ahd-5")[0];
 
     this.sourcesMap.set(pronunciation.rawType, {
       name: pronunciation.attributionText,
@@ -45,10 +34,11 @@ export class NewWord {
 
     return {
       text: pronunciation.raw,
+      audio: []
     };
   }
 
-  async getDefinitions(): Promise<Array<IWord.Types.WordDefinition>> {
+  private getDefinitions = async (): Promise<Array<IWord.Types.WordDefinition>> => {
     const res = await fetch(this.searchUrl);
     if (res.status !== 200) throw new Error("The word doesn't be found in the dictionary");
 
@@ -60,20 +50,21 @@ export class NewWord {
         this.sourcesMap.set(item.sourceDictionary, {
           name: item.attributionText,
           url: item.attributionUrl
-        })
+        });
 
         if (item.wordnikUrl) {
           this.sourcesMap.set("wordnik", {
             name: "wordnik",
             url: item.wordnikUrl
-          })
-        }
+          });
+        };
 
         return {
           partOfSpeech: item.partOfSpeech,
           definition: item.text,
           example: {
-            text: item.exampleUses[0].text
+            text: item.exampleUses[0].text,
+            audio: []
           }
         };
       };
@@ -82,7 +73,7 @@ export class NewWord {
     }).filter((item: IWord.Types.WordDefinition) => item !== null);
   }
 
-  async getFrequency(): Promise<number> {
+  private getFrequency = async (): Promise<number> => {
     const res = await fetch(this.frequencyUrl)
     if (res.status !== 200) throw new Error("The word doesn't be found in the dictionary");
 
@@ -90,5 +81,16 @@ export class NewWord {
 
     if (data.totalCount) return data.totalCount
     return 0
+  }
+
+  public getWordData = async (): Promise<IWord.Types.Word> => {
+    return {
+      word: this.word,
+      definitions: await this.getDefinitions(),
+      phonetics: await this.getPhonetics(),
+      sources: Array.from(this.sourcesMap.values()),
+      frequency: await this.getFrequency(),
+      requested: 0
+    }
   }
 }

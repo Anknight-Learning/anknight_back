@@ -9,7 +9,7 @@ const Word = new mongoose.Schema({
       example: {
         type: {
           text: { type: String, required: true },
-          audio: { type: String }
+          audio: { type: [{ accent: String, url: String }], required: true, default: [] }
         },
         required: true
       }
@@ -19,7 +19,7 @@ const Word = new mongoose.Schema({
   phonetics: {
     type: {
       text: { type: String, required: true },
-      audio: { type: String }
+      audio: { type: [{ accent: String, url: String }], required: true, default: [] }
     },
     required: true
   },

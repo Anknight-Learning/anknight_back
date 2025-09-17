@@ -1,25 +1,41 @@
 import { Hono } from 'hono'
 import words from './words/routes'
-import mongoose from 'mongoose'
+import { Rabbit } from './words/classes/Rabbit'
+import { DB } from './words/classes/DB'
+import { Logger } from './words/classes/Logger'
 
 const start = async () => {
+  const logger = Logger.getInstance()?.logger;
+
+  if (!logger) {
+    console.log("The logger service is not working");
+    process.exit(1);
+  }
+
   try {
-    await mongoose.connect(`${process.env.MONGO_URI}`);
-    console.log(`Mongoose conectado en ${process.env.MONGO_URI}`)
+    const rabbit = Rabbit.getInstance();
+    const db = DB.getInstance()
 
-    const app = new Hono()
-    const api = new Hono()
+    try {
+      if (rabbit && rabbit.enabled) rabbit.connect();
+      await db.connect();
+    } catch (e) {
+      logger.fatal(e);
+      process.exit(1);
+    }
 
-    app.route("/words", words)
+    const app = new Hono();
+    const api = new Hono();
 
-    api.route("/api/v1", app)
+    app.route("/words", words);
+    api.route("/api/v1", app);
 
     return {
       port: 3456,
       fetch: api.fetch
     }
   } catch (e) {
-    console.log(e);
+    logger.fatal(e);
     process.exit(1);
   }
 }

@@ -37,14 +37,18 @@ export class ApiWord {
       return {
         partOfSpeech: definition.partOfSpeech,
         definition: definition.definition,
-        example: { text: definition.example.text }
+        example: {
+          text: definition.example.text,
+          audio: definition.example.audio
+        }
       };
     });
   };
 
   getStructuredPhonetics(phonetics: IWord.Types.WordPhonetics) {
     return {
-      text: phonetics.text
+      text: phonetics.text,
+      audio: phonetics.audio
     };
   };
 

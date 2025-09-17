@@ -7,6 +7,9 @@ import { z } from "zod";
 export namespace IWord {
 
   /** Word Schemas */
+
+  const ObjectIdSchema = z.instanceof(Types.ObjectId);
+
   const WordText = z.string()
 
   const WordDefinition = z.object({
@@ -14,13 +17,19 @@ export namespace IWord {
     definition: z.string(),
     example: z.object({
       text: z.string(),
-      audio: z.string().nullable().optional()
+      audio: z.array(z.object({
+        accent: z.string().optional().nullable(),
+        url: z.url().optional().nullable()
+      }).optional().nullable())
     })
   });
 
   const WordPhonetics = z.object({
     text: z.string(),
-    audio: z.string().nullable().optional(),
+    audio: z.array(z.object({
+      accent: z.string().optional().nullable(),
+      url: z.url().optional().nullable()
+    }).optional().nullable())
   });
 
   const WordSource = z.object({
@@ -42,9 +51,17 @@ export namespace IWord {
   })
 
   /** Database Word Schemas */
-  const DBWordDefinition = WordDefinition.extend({ _id: Types.ObjectId });
-  const DBWordSource = WordSource.extend({ _id: Types.ObjectId });
-  const DBWord = Word.extend({ _id: Types.ObjectId, definitions: z.array(DBWordDefinition), sources: z.array(DBWordSource), d_creation: z.date(), d_updated: z.date() });
+  const DBWordDefinition = WordDefinition.extend({ _id: ObjectIdSchema });
+  const DBWordSource = WordSource.extend({ _id: ObjectIdSchema });
+  const DBWordPhonetics = WordPhonetics.extend({ _id: ObjectIdSchema.optional().nullable() })
+  const DBWord = Word.extend({
+    _id: ObjectIdSchema,
+    phonetics: DBWordPhonetics,
+    definitions: z.array(DBWordDefinition),
+    sources: z.array(DBWordSource),
+    d_creation: z.date(),
+    d_updated: z.date()
+  });
 
   export const Validation = {
     WordText,

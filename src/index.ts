@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
 import words from './words/routes'
-import { Rabbit } from './words/classes/Rabbit'
-import { DB } from './words/classes/DB'
+import { RabbitMQ } from './words/classes/RabbitMQ'
+import { MongoDB } from './words/classes/MongoDB'
 import { Logger } from './words/classes/Logger'
 
 const start = async () => {
-  const logger = Logger.getInstance()?.logger;
+  const logger = Logger.getInstance();
 
   if (!logger) {
     console.log("The logger service is not working");
@@ -13,8 +13,8 @@ const start = async () => {
   }
 
   try {
-    const rabbit = Rabbit.getInstance();
-    const db = DB.getInstance()
+    const rabbit = RabbitMQ.getInstance();
+    const db = MongoDB.getInstance()
 
     try {
       if (rabbit && rabbit.enabled) rabbit.connect();
@@ -31,7 +31,7 @@ const start = async () => {
     api.route("/api/v1", app);
 
     return {
-      port: 3456,
+      port: Number(process.env.PORT) || 3456,
       fetch: api.fetch
     }
   } catch (e) {

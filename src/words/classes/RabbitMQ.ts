@@ -1,31 +1,25 @@
 import { connect, type Channel, type ChannelModel } from "amqplib";
 import { IMessage } from "../interfaces/IMessage";
 import { Logger } from "./Logger";
+import pino from "pino";
 
-export class Rabbit {
-  static instance: Rabbit | null = null;
+export class RabbitMQ {
+  static instance: RabbitMQ | null = null;
 
-  private logger = Logger.getInstance()?.logger;
-  public enabled: Number;
+  private logger: pino.Logger = Logger.getInstance();
 
-  private host: string;
-  private port: number;
-  private user: string;
-  private password: string;
-  private queue: string;
-  private requeueDays: number;
+  public enabled: Number = Number(process.env.MODULE_AUDIO_GENERATOR) || 0;
+
+  private host: string = process.env.RABBITMQ_HOST || "localhost";
+  private port: number = Number(process.env.RABBITMQ_PORT) || 5672;
+  private user: string = process.env.RABBITMQ_USER || "";
+  private password: string = process.env.RABBITMQ_PASS || "";
+  private queue: string = process.env.RABBITMQ_QUEUE || "";
+  private requeueDays: number = ((Number(process.env.RABBITMQ_REQUEUE_DAYS) < 15 ? Number(process.env.RABBITMQ_REQUEUE_DAYS) : 15) || 15) * 24 * 60 * 60 * 1000;
   private client: ChannelModel | null = null;
   private channel: Channel | null = null;
 
-  constructor() {
-    this.enabled = Number(process.env.MODULE_AUDIO_GENERATOR) || 0;
-    this.host = process.env.RABBITMQ_HOST || "localhost";
-    this.port = Number(process.env.RABBITMQ_PORT) || 5672;
-    this.user = process.env.RABBITMQ_USER || "";
-    this.password = process.env.RABBITMQ_PASS || "";
-    this.queue = process.env.RABBITMQ_QUEUE || "";
-    this.requeueDays = ((Number(process.env.RABBITMQ_REQUEUE_DAYS) < 15 ? Number(process.env.RABBITMQ_REQUEUE_DAYS) : 15) || 15) * 24 * 60 * 60 * 1000;
-  }
+  constructor() { }
 
   public connect = async (): Promise<void> => {
     try {
@@ -34,7 +28,7 @@ export class Rabbit {
       this.client = await connect(rabbitURL);
 
       if (!this.client) {
-        this.logger.error(`The RabbitMQ service client couldn't be connected`);
+        this.logger.fatal(`The RabbitMQ service client couldn't be connected`);
         return;
       }
 
@@ -68,9 +62,7 @@ export class Rabbit {
   }
 
   public static getInstance = () => {
-    if (!Rabbit.instance) {
-      this.instance = new Rabbit();
-    }
-    return Rabbit.instance;
+    if (!RabbitMQ.instance) this.instance = new RabbitMQ();
+    return RabbitMQ.instance;
   }
 }

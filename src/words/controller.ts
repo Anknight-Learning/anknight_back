@@ -3,7 +3,7 @@ import { NewWord } from "./classes/NewWord"
 import Word from "./schemas/Word"
 import { ApiWord } from "./classes/ApiWord"
 import { IFilters } from "./interfaces/IFilters"
-import { Rabbit } from "./classes/Rabbit"
+import { RabbitMQ } from "./classes/RabbitMQ"
 import { IMessage } from "./interfaces/IMessage"
 import { IWord } from "./interfaces/IWord"
 
@@ -84,7 +84,7 @@ const listWords = async (c: Context) => {
 
 const searchWord = async (c: Context) => {
   const word = c.req.param("word");
-  const rabbit = Rabbit.getInstance();
+  const rabbit = RabbitMQ.getInstance();
 
   try {
     const dbWord = await Word.findOneAndUpdate({ "word": word }, { "$inc": { requested: 1 } }, { new: true });

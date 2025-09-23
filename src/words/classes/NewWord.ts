@@ -1,9 +1,7 @@
 import { IWord } from "../interfaces/IWord"
 import { IWordnik } from "../interfaces/IWordnik"
-import { Logger } from "./Logger";
 
 export class NewWord {
-  private logger = Logger.getInstance()?.logger;
   private word: string;
   private searchUrl: URL;
   private pronunciationUrl: URL;

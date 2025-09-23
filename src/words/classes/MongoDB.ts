@@ -1,22 +1,21 @@
 import mongoose from "mongoose";
 import Accent from "../schemas/Accent";
 import { Logger } from "./Logger";
+import pino from "pino";
 
-export class DB {
-  static instance: DB | null = null;
-  private uri: string
-  private logger = Logger.getInstance()?.logger;
+export class MongoDB {
+  static instance: MongoDB | null = null;
+  private uri: string = process.env.MONGO_URI || "";
+  private logger: pino.Logger = Logger.getInstance();
 
-  constructor() {
-    this.uri = process.env.MONGO_URI || "";
-  }
+  constructor() { }
 
   public connect = async () => {
     try {
       await mongoose.connect(this.uri);
       this.logger.info(`Mongoose connected to ${this.uri}`);
     } catch (e) {
-      this.logger.error(`The database couldn't be connected`);
+      this.logger.fatal(`The database couldn't be connected`);
       return;
     }
   }
@@ -39,10 +38,7 @@ export class DB {
   }
 
   public static getInstance = () => {
-    if (!DB.instance) {
-      DB.instance = new DB();
-    }
-
-    return DB.instance;
+    if (!MongoDB.instance) MongoDB.instance = new MongoDB();
+    return MongoDB.instance;
   }
 }

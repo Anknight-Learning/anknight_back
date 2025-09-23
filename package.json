@@ -1,8 +1,13 @@
 {
   "name": "anknight_back",
+  "module": "index.ts",
   "type": "module",
+  "version": "0.1.0",
+  "private": "true",
   "scripts": {
-    "dev": "bun run --hot src/index.ts | pino-pretty"
+    "dev": "bun run --hot src/index.ts | pino-pretty",
+    "start": "bun run src/index.ts",
+    "deploy": "./deploy.sh"
   },
   "dependencies": {
     "amqplib": "^0.10.9",

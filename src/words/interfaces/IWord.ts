@@ -20,7 +20,7 @@ export namespace IWord {
       audio: z.array(z.object({
         accent: z.string().optional().nullable(),
         url: z.url().optional().nullable()
-      }).optional().nullable())
+      }).optional().nullable()).optional()
     })
   });
 

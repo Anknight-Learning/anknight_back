@@ -38,8 +38,7 @@ export class ApiWord {
         partOfSpeech: definition.partOfSpeech,
         definition: definition.definition,
         example: {
-          text: definition.example.text,
-          audio: definition.example.audio
+          text: definition.example.text
         }
       };
     });

@@ -50,11 +50,12 @@ const listWords = async (c: Context) => {
             $project: {
               _id: 0,
               word: 1,
+              part_of_speech: { $arrayElemAt: ["$definitions.partOfSpeech", 0] },
+              definition: { $arrayElemAt: ["$definitions.example.text", 0] },
+              definition_count: { $size: "$definitions" },
               frequency: 1,
               requested: 1,
               d_updated: 1,
-              first_definition: { $arrayElemAt: ["$definitions.partOfSpeech", 0] },
-              definition_count: { $size: "$definitions" }
             }
           },
           { $skip: limit * page },

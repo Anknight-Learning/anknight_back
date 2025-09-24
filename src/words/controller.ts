@@ -51,7 +51,7 @@ const listWords = async (c: Context) => {
               _id: 0,
               word: 1,
               part_of_speech: { $arrayElemAt: ["$definitions.partOfSpeech", 0] },
-              definition: { $arrayElemAt: ["$definitions.example.text", 0] },
+              definition: { $arrayElemAt: ["$definitions.definition", 0] },
               definition_count: { $size: "$definitions" },
               frequency: 1,
               requested: 1,

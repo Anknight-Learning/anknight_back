@@ -30,10 +30,7 @@ export class NewWord {
       url: pronunciation.attributionUrl
     });
 
-    return {
-      text: pronunciation.raw,
-      audio: []
-    };
+    return { text: pronunciation.raw };
   }
 
   private getDefinitions = async (): Promise<Array<IWord.Types.WordDefinition>> => {
@@ -43,7 +40,7 @@ export class NewWord {
     const data = await res.json()
 
     return data.map((item: IWordnik.Types.Definition): IWord.Types.WordDefinition | null => {
-      if (item.exampleUses.length > 0 && item.sourceDictionary === "ahd-5") {
+      if (item.sourceDictionary === "ahd-5") {
 
         this.sourcesMap.set(item.sourceDictionary, {
           name: item.attributionText,
@@ -60,10 +57,7 @@ export class NewWord {
         return {
           partOfSpeech: item.partOfSpeech,
           definition: item.text,
-          example: {
-            text: item.exampleUses[0].text,
-            audio: []
-          }
+          ...(item.exampleUses ? { example: { text: item.exampleUses[0].text } } : {})
         };
       };
 
@@ -91,4 +85,5 @@ export class NewWord {
       requested: 0
     }
   }
+
 }

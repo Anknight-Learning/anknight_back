@@ -85,30 +85,18 @@ const listWords = async (c: Context) => {
 
 const searchWord = async (c: Context) => {
   const word = c.req.param("word");
-  const rabbit = RabbitMQ.getInstance();
 
   try {
     const dbWord = await Word.findOneAndUpdate({ "word": word }, { "$inc": { requested: 1 } }, { new: true });
 
-    if (dbWord) return c.json(new ApiWord(dbWord).getStructuredWord());
+    const parsedDBWord = IWord.Validation.DBWord.safeParse(dbWord);
+
+    if (parsedDBWord.success) return c.json(new ApiWord(parsedDBWord.data).getStructuredWord());
 
     try {
       const wordnikWord = await new NewWord(word).getWordData();
-      const savedWord: IWord.Types.DB.Word = await Word.insertOne(wordnikWord);
 
-      if (savedWord && rabbit && rabbit.enabled) {
-
-        const phoneticsID = savedWord.phonetics._id;
-
-        const rabbitMessage: IMessage.Types.Message = {
-          word: word,
-          text: word,
-          field_name: "phonetics",
-          field_id: phoneticsID ? phoneticsID.toString() : ""
-        }
-
-        rabbit.sendMessage(rabbitMessage);
-      }
+      const savedWord: IWord.Types.DB.Word = await Word.findOneAndUpdate({ word: word }, { $set: wordnikWord }, { upsert: true, new: true });
 
       return c.json(new ApiWord(savedWord).getStructuredWord());
     } catch (e) {

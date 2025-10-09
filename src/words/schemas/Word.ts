@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const Word = new mongoose.Schema({
   word: { type: String, required: true, unique: true },
+  image: { type: String, required: false },
   definitions: {
     type: [{
       partOfSpeech: { type: String, required: true },
@@ -9,9 +10,9 @@ const Word = new mongoose.Schema({
       example: {
         type: {
           text: { type: String, required: true },
-          audio: { type: [{ accent: String, url: String }], required: true, default: [] }
+          audio: { type: String, required: false }
         },
-        required: true
+        required: false
       }
     }],
     required: true
@@ -19,7 +20,7 @@ const Word = new mongoose.Schema({
   phonetics: {
     type: {
       text: { type: String, required: true },
-      audio: { type: [{ accent: String, url: String }], required: true, default: [] }
+      audio: { type: String, required: false }
     },
     required: true
   },

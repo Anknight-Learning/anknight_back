@@ -12,24 +12,20 @@ export namespace IWord {
 
   const WordText = z.string()
 
+  const WordImage = z.url().optional().nullable();
+
   const WordDefinition = z.object({
     partOfSpeech: z.string(),
     definition: z.string(),
     example: z.object({
       text: z.string(),
-      audio: z.array(z.object({
-        accent: z.string().optional().nullable(),
-        url: z.url().optional().nullable()
-      }).optional().nullable()).optional()
-    })
+      audio: z.url().optional().nullable()
+    }).optional().nullable()
   });
 
   const WordPhonetics = z.object({
     text: z.string(),
-    audio: z.array(z.object({
-      accent: z.string().optional().nullable(),
-      url: z.url().optional().nullable()
-    }).optional().nullable())
+    audio: z.url().optional().nullable()
   });
 
   const WordSource = z.object({
@@ -37,18 +33,19 @@ export namespace IWord {
     url: z.string()
   });
 
-  const WordFrecuency = z.number()
+  const WordFrecuency = z.number();
 
-  const WordRequested = z.number()
+  const WordRequested = z.number();
 
   const Word = z.object({
     word: WordText,
+    image: WordImage,
     definitions: z.array(WordDefinition),
     phonetics: WordPhonetics,
     sources: z.array(WordSource),
     frequency: WordFrecuency,
     requested: WordRequested
-  })
+  });
 
   /** Database Word Schemas */
   const DBWordDefinition = WordDefinition.extend({ _id: ObjectIdSchema });

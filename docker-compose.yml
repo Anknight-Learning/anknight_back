@@ -1,15 +1,16 @@
 ---
 services:
-  anknight-words-api: ghcr.io/anknight-learning/anknight_back/anknight-words-api:latest
-  restart: always
-  environment:
-    PORT: ${PORT}
-    WORD_SEARCH_URL: ${WORD_SEARCH_URL}
-    WORDNIK_TOKEN: ${WORDNIK_TOKEN}
-    MONGO_URI: ${MONGO_URI}
-    RABBITMQ_HOST: ${RABBITMQ_HOST}
-    RABBITMQ_PORT: ${RABBITMQ_PORT}
-    RABBITMQ_USER: ${RABBITMQ_USER}
-    RABBITMQ_PASS: ${RABBITMQ_PASS}
-    RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
-    MODULE_AUDIO_GENERATOR: ${MODULE_AUDIO_GENERATOR}
+  anknight-words-api:
+    image: ghcr.io/anknight-learning/anknight_back/anknight-words-api:latest
+    restart: always
+    environment:
+      PORT: ${PORT}
+      WORD_SEARCH_URL: ${WORD_SEARCH_URL}
+      WORDNIK_TOKEN: ${WORDNIK_TOKEN}
+      MONGO_URI: ${MONGO_URI}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
+      MODULE_AUDIO_GENERATOR: ${MODULE_AUDIO_GENERATOR}

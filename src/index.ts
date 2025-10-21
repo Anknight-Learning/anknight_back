@@ -13,11 +13,9 @@ const start = async () => {
   }
 
   try {
-    const rabbit = RabbitMQ.getInstance();
     const db = MongoDB.getInstance()
 
     try {
-      if (rabbit && rabbit.enabled) rabbit.connect();
       await db.connect();
     } catch (e) {
       logger.fatal(e);

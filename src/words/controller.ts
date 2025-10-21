@@ -3,10 +3,9 @@ import { NewWord } from "./classes/NewWord"
 import Word from "./schemas/Word"
 import { ApiWord } from "./classes/ApiWord"
 import { IFilters } from "./interfaces/IFilters"
-import { RabbitMQ } from "./classes/RabbitMQ"
-import { IMessage } from "./interfaces/IMessage"
 import { IWord } from "./interfaces/IWord"
 
+// TODO: Add param to filter by definition types (noun, verb, etc)
 const listWords = async (c: Context) => {
   const page: number = Number(c.req.query("page")) - 1 || 0;
   const limit: number = Number(c.req.query("limit")) || 20;
@@ -88,24 +87,27 @@ const searchWord = async (c: Context) => {
 
   try {
     const dbWord = await Word.findOneAndUpdate({ "word": word }, { "$inc": { requested: 1 } }, { new: true });
-
     const parsedDBWord = IWord.Validation.DBWord.safeParse(dbWord);
-
     if (parsedDBWord.success) return c.json(new ApiWord(parsedDBWord.data).getStructuredWord());
 
     try {
       const wordnikWord = await new NewWord(word).getWordData();
+
+      if (!wordnikWord) {
+        c.status(404);
+        return c.json({ message: `The word ${word} hasn't been found` });
+      }
 
       const savedWord: IWord.Types.DB.Word = await Word.findOneAndUpdate({ word: word }, { $set: wordnikWord }, { upsert: true, new: true });
 
       return c.json(new ApiWord(savedWord).getStructuredWord());
     } catch (e) {
       c.status(404);
-      return c.json({ message: `The word ${word} hasn't been found` })
+      return c.json({ message: `The word ${word} hasn't been found ${e}` })
     }
   } catch (e) {
     c.status(404);
-    return c.json({ message: `The word ${word} hasn't been found` })
+    return c.json({ message: `The word ${word} hasn't been found ${e}` })
   }
 }
 

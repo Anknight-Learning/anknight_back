@@ -1,7 +1,7 @@
 ---
 services:
   anknight-words-api:
-    image: ghcr.io/anknight-learning/anknight_back/anknight-words-api:latest
+    image: ghcr.io/anknight-learning/anknight-words-api:0.1.2
     restart: always
     environment:
       PORT: ${PORT}
@@ -13,4 +13,3 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASS: ${RABBITMQ_PASS}
       RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
-      MODULE_AUDIO_GENERATOR: ${MODULE_AUDIO_GENERATOR}

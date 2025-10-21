@@ -37,10 +37,10 @@ export class NewWord {
     const res = await fetch(this.searchUrl);
     if (res.status !== 200) throw new Error("The word doesn't be found in the dictionary");
 
-    const data = await res.json()
+    const data = await res.json();
 
     return data.map((item: IWordnik.Types.Definition): IWord.Types.WordDefinition | null => {
-      if (item.sourceDictionary === "ahd-5") {
+      if (item.sourceDictionary === "ahd-5" && item.text) {
 
         this.sourcesMap.set(item.sourceDictionary, {
           name: item.attributionText,
@@ -56,8 +56,8 @@ export class NewWord {
 
         return {
           partOfSpeech: item.partOfSpeech,
-          definition: item.text,
-          ...(item.exampleUses ? { example: { text: item.exampleUses[0].text } } : {})
+          definition: item.text.replace(/<\/?[^>]+>/g, ""),
+          ...(item.exampleUses && item.exampleUses[0] ? { example: { text: item.exampleUses[0].text } } : {})
         };
       };
 
@@ -75,8 +75,8 @@ export class NewWord {
     return 0
   }
 
-  public getWordData = async (): Promise<IWord.Types.Word> => {
-    return {
+  public getWordData = async (): Promise<IWord.Types.Word | null> => {
+    const word = {
       word: this.word,
       definitions: await this.getDefinitions(),
       phonetics: await this.getPhonetics(),
@@ -84,6 +84,12 @@ export class NewWord {
       frequency: await this.getFrequency(),
       requested: 0
     }
+
+    const parsedWord = IWord.Validation.Word.safeParse(word);
+
+    if (parsedWord.success) return parsedWord.data;
+
+    return null;
   }
 
 }

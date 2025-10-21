@@ -12,7 +12,7 @@ export class ApiWord {
 
   constructor(item: IWord.Types.DB.Word) {
     this.word = item.word;
-    this.definitions = this.getStructuredDefinitions(item.definitions);
+    this.definitions = this.getStructuredDefinitions(item.definitions) as Array<IWord.Types.WordDefinition>;
     this.phonetics = this.getStructuredPhonetics(item.phonetics);
     this.sources = this.getStructuredSources(item.sources);
     this.frequency = item.frequency;
@@ -37,9 +37,7 @@ export class ApiWord {
       return {
         partOfSpeech: definition.partOfSpeech,
         definition: definition.definition,
-        example: {
-          text: definition.example.text
-        }
+        ...(definition.example && definition.example.text ? { example: definition.example.text } : {}),
       };
     });
   };

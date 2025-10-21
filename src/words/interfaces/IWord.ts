@@ -40,7 +40,7 @@ export namespace IWord {
   const Word = z.object({
     word: WordText,
     image: WordImage,
-    definitions: z.array(WordDefinition),
+    definitions: z.array(WordDefinition).min(1),
     phonetics: WordPhonetics,
     sources: z.array(WordSource),
     frequency: WordFrecuency,
@@ -54,7 +54,7 @@ export namespace IWord {
   const DBWord = Word.extend({
     _id: ObjectIdSchema,
     phonetics: DBWordPhonetics,
-    definitions: z.array(DBWordDefinition),
+    definitions: z.array(DBWordDefinition).min(1),
     sources: z.array(DBWordSource),
     d_creation: z.date(),
     d_updated: z.date()

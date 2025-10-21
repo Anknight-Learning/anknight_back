@@ -3,6 +3,7 @@ services:
   anknight-words-api:
     image: ghcr.io/anknight-learning/anknight-words-api:0.1.2
     restart: always
+    port: ${EXPOSED_PORT}:${PORT}
     environment:
       PORT: ${PORT}
       WORD_SEARCH_URL: ${WORD_SEARCH_URL}
